@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Tutor Dashboard{% endblock %}
+{% block content %}
+<h2>Tutor Dashboard</h2>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Create Availability</h5>
+                <a href="{{ url_for('create_availability') }}" class="btn btn-custom" aria-labl="Time slot" title="Add an availability">Add Time Slot</a>
+                <i class="fa fa-trash" aria-hidden="true"></i> </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Availability</h5>
+                <p>{{ availability_slots|length }} slot(s) available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Booked Meetings</h5>
+                {% set booked_count = availability_slots|selectattr("booked")|list|length %}
+                <p>{{ booked_count }} meeting(s) scheduled</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if availability_slots %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">All Availability Slots</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in availability_slots %}
+                            <tr>
+                                <td>{{ slot.start_time.strftime("%b %d, %Y") }}</td>
+                                <td>{{ slot.start_time.strftime("%H:%M") }}</td>
+                                <td>{{ slot.end_time.strftime("%H:%M") }}</td>
+                                <td>
+                                    {% if slot.booked %}
+                                        <span class="badge bg-danger">Booked</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Available</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ slot.notes or "-" }}</td>
+                                <td>
+                                    {% if not slot.booked %}
+                                        <form method="POST" action="{{ url_for('delete_availability', slot_id=slot.availability_id) }}" 
+                                              style="display: inline;"
+                                              onsubmit="return confirm('Are you sure you want to delete this slot?');">
+                                            <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete slot" title="Delete slot">Delete</button>
+                                            <i class="fa fa-trash" aria-hidden="true"></i> </button>
+                                        </form>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-secondary" disabled>Delete</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if upcoming_meetings %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Booked Meetings</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in upcoming_meetings %}
+                            <tr>
+                                <td>
+                                    {{ meeting.student.name }}
+                                    {% if meeting.adjustment_flag %}
+                                        <span class="badge bg-warning text-dark ms-1">+25%</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ meeting.start_time.strftime('%b %d, %Y') }}</td>
+                                <td>{{ meeting.start_time.strftime('%H:%M') }}</td>
+                                <td>{{ meeting.end_time.strftime('%H:%M') }}</td>
+                                <td><span class="badge bg-success">{{ meeting.status }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('manage_meeting_notes', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-primary" 
+                                       title="Manage meeting notes">
+                                        Manage Notes
+                                    </a>
+                                    <a href="{{ url_for('reschedule_meeting', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Change meeting time">Reschedule</a>
+                                    <a href="{{ url_for('auto_schedule_setup', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Find optimal slot">Auto-Find Slot</a>
+                                    <form method="POST" action="{{ url_for('cancel_meeting', meeting_id=meeting.meeting_id) }}" 
+                                          style="display: inline;"
+                                          onsubmit="return confirm('Are you sure you want to cancel this meeting?');">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Cancel booked meeting">Cancel</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if past_meetings %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Past Meetings</h5>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in past_meetings %}
+                            <tr>
+                                <td>{{ meeting.student.name }}</td>
+                                <td>{{ meeting.start_time.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {{ meeting.start_time.strftime('%H:%M') }} –
+                                    {{ meeting.end_time.strftime('%H:%M') }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">Completed</span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('manage_meeting_notes', meeting_id=meeting.meeting_id) }}"
+                                       class="btn btn-sm btn-outline-dark">
+                                        Manage Notes
+                                    </a>
+                                </td>
+                            </tr>            
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <small class="text-muted">
+                    Completed meetings are archived but notes remain editable.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

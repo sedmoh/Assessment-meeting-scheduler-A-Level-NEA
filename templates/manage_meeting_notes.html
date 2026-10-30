@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}
+Manage Meeting Notes
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        <!-- Page header -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title mb-1">Manage Meeting Notes</h2>
+                <p class="text-muted mb-0">
+                    Meeting with {{ meeting.student.name }}<br>
+                    <small>
+                        Scheduled for {{ meeting.start_time.strftime("%d %B %Y at %H:%M") }}
+                    </small>
+                </p>
+            </div>
+        </div>
+
+        <form method="POST">
+            <div class="row">
+
+                <!-- PUBLIC NOTES -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-success text-white">
+                            Public Notes (Visible to Student)
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">
+                                These notes are shared with the student after the meeting.
+                            </p>
+                            <textarea
+                                name="public_notes"
+                                class="form-control"
+                                rows="10"
+                                placeholder="Enter public feedback, outcomes, or guidance here..."
+                            >{{ meeting.public_notes or "" }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRIVATE NOTES -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-warning">
+                            Private Notes (Tutor Only)
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">
+                                These notes are private and only visible to you.
+                            </p>
+                            <textarea
+                                name="private_notes"
+                                class="form-control"
+                                rows="10"
+                                placeholder="Enter private reflections or internal notes here..." >{{ meeting.private_notes or "Performance on Content:\n\n\nCommunication Skills:\n\n\nRecommendation:\n\n" }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    Back to Dashboard
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    Save Notes
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

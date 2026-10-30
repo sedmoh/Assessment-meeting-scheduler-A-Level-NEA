@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Staff Tutor Dashboard{% endblock %}
+{% block content %}
+<h2>Staff Tutor Dashboard</h2>
+
+<!-- Staff Tutor Management Options -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-body">
+                <h5 class="card-title">Staff Tutor Functions</h5>
+                <p>As a staff tutor, you can manage schedules for other tutors.</p>
+                <a href="{{ url_for('select_tutor') }}" class="btn btn-primary">
+                Manage Other Tutors
+                </a>
+                <a href="{{ url_for('admin_reports') }}" class="btn btn-info">
+                View Reports
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Your Own Schedule (same as regular tutor) -->
+<h3>Your Schedule</h3>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Create Availability</h5>
+                <a href="{{ url_for('create_availability') }}" class="btn btn-custom">Add Time Slot</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Availability</h5>
+                <p>{{ availability_slots|length }} slot(s) available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Booked Meetings</h5>
+                {% set booked_count = availability_slots|selectattr("booked")|list|length %}
+                <p>{{ booked_count }} meeting(s) scheduled</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rest of schedule displays (same as tutor dashboard) -->
+{% if availability_slots %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Availability Slots</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in availability_slots %}
+                            <tr>
+                                <td>{{ slot.start_time.strftime("%b %d, %Y") }}</td>
+                                <td>{{ slot.start_time.strftime("%H:%M") }}</td>
+                                <td>{{ slot.end_time.strftime("%H:%M") }}</td>
+                                <td>
+                                    {% if slot.booked %}
+                                        <span class="badge bg-danger">Booked</span>
+                                        {% if slot.adjustment_flag %}
+                                            <span class="badge bg-warning text-dark ms-1">+25%</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge bg-success">Available</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ slot.notes or "-" }}</td>
+                                <td>
+                                    {% if not slot.booked %}
+                                        <form method="POST" action="{{ url_for('delete_availability', slot_id=slot.availability_id) }}" 
+                                              style="display: inline;"
+                                              onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

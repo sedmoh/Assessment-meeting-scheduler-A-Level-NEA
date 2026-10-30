@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Create Meeting{% endblock %}
+{% block content %}
+
+<h2>Admin: Create New Meeting</h2>
+
+<div class="alert alert-warning">
+    <strong>Admin Override:</strong> You are creating a meeting on behalf of users. Both parties will be notified.
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Meeting Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Student Selection -->
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Student *</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">Select a student...</option>
+                            {% for student in students %}
+                            <option value="{{ student.user_id }}">
+                                {{ student.name }} ({{ student.email }})
+                                {% if student.student_profile and student.student_profile.has_adjustment %}
+                                    [+25% Adjustment]
+                                {% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Tutor Selection -->
+                    <div class="mb-3">
+                        <label for="tutor_id" class="form-label">Tutor *</label>
+                        <select class="form-select" id="tutor_id" name="tutor_id" required onchange="loadAvailableSlots()">
+                            <option value="">Select a tutor...</option>
+                            {% for tutor in tutors %}
+                            <option value="{{ tutor.user_id }}">
+                                {{ tutor.name }} ({{ tutor.email }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date and Time -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="start_time" class="form-label">Start Time *</label>
+                            <input type="time" class="form-control" id="start_time" name="start_time" required>
+                        </div>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (minutes) *</label>
+                        <select class="form-select" id="duration" name="duration" required>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="75">75 minutes (+25% adjustment)</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
+                        </select>
+                        <small class="text-muted">
+                            If student has reasonable adjustments, system will auto-apply +25%
+                        </small>
+                    </div>
+
+                    <!-- Meeting Link (optional) -->
+                    <div class="mb-3">
+                        <label for="meeting_link" class="form-label">Meeting Link (Optional)</label>
+                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" 
+                               placeholder="https://teams.microsoft.com/...">
+                        <small class="text-muted">
+                            Leave blank to auto-generate Teams link (if configured)
+                        </small>
+                    </div>
+
+                    <!-- Public Notes -->
+                    <div class="mb-3">
+                        <label for="public_notes" class="form-label">Public Notes (Optional)</label>
+                        <textarea class="form-control" id="public_notes" name="public_notes" rows="3"
+                                  placeholder="Notes visible to both student and tutor"></textarea>
+                    </div>
+
+                    <!-- Admin Reason -->
+                    <div class="mb-3">
+                        <label for="admin_reason" class="form-label">Reason for Admin Creation *</label>
+                        <textarea class="form-control" id="admin_reason" name="admin_reason" rows="2" required
+                                  placeholder="e.g., Student requested emergency meeting, Rescheduling cancelled session"></textarea>
+                        <small class="text-muted">
+                            This will be included in the notification emails
+                        </small>
+                    </div>
+
+                    <!-- Override Options -->
+                    <div class="card border-warning mb-3">
+                        <div class="card-header bg-warning">
+                            <strong>Admin Override Options</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="skip_conflict_check" 
+                                       name="skip_conflict_check">
+                                <label class="form-check-label" for="skip_conflict_check">
+                                    Skip conflict detection (allow double bookings)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="skip_limit_check" 
+                                       name="skip_limit_check">
+                                <label class="form-check-label" for="skip_limit_check">
+                                    Skip daily/weekly limits (allow over-booking)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Create Meeting
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Admin Powers</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>As an admin, you can:</strong></p>
+                <ul>
+                    <li>Create meetings for any student/tutor pair</li>
+                    <li>Override conflict detection</li>
+                    <li>Bypass daily/weekly limits</li>
+                    <li>Set custom durations</li>
+                    <li>Add meeting links manually</li>
+                </ul>
+                
+                <hr>
+                
+                <p><strong>Notifications:</strong></p>
+                <p class="small">
+                    Both student and tutor will receive email notifications that include:
+                </p>
+                <ul class="small">
+                    <li>Meeting details</li>
+                    <li>Your name as the admin who created it</li>
+                    <li>The reason you provided</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card border-warning mt-3">
+            <div class="card-header bg-warning">
+                <strong>Important Notes</strong>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li>Check for conflicts manually if overriding</li>
+                    <li>Ensure both parties are aware</li>
+                    <li>Provide clear reason for audit trail</li>
+                    <li>Adjustments auto-apply for students with needs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

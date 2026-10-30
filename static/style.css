@@ -1,0 +1,165 @@
+/* Import Google Fonts */
+@import url("//fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+/* Apply to everything */
+* {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Button */
+.container a{
+ font-family:'Poppins', sans-serif;
+ background-color:transparent;
+}
+
+/* Change the navbar colour */
+.navbar {
+    background-color: #060645 !important;  
+}
+
+/* PRIMARY BUTTONS - Main actions (Login, Register, Submit) */
+.btn-primary {
+    background-color: #1C46C0 !important;
+    border-color: #1C46C0 !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #060645 !important;
+    border-color: #060645 !important;
+    color: white !important;
+}
+
+/* CUSTOM BUTTONS - Positive actions (View, Add, Book) */
+.btn-custom {
+    background-color: #1C46C0 !important;
+    border-color: #1C46C0 !important;
+    color: white !important;
+}
+
+.btn-custom:hover {
+    background-color: #060645 !important;  
+    border-color: #060645 !important;
+    color: white !important;
+}
+
+/* SUCCESS BUTTONS - Confirmation actions (Confirm, Create, Enable) */
+.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+.btn-success:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+    color: white !important;
+}
+
+/* WARNING BUTTONS - Caution actions (Reschedule, Disable) */
+.btn-warning {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800 !important;
+    border-color: #d39e00 !important;
+    color: #212529 !important;
+}
+
+/* DANGER BUTTONS - Destructive actions (Delete, Cancel) */
+.btn-danger,
+.btn-custom2 {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+.btn-danger:hover,
+.btn-custom2:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+    color: white !important;
+}
+
+/* INFO BUTTONS - Informational actions (Auto-Find, View Reports) */
+.btn-info {
+    background-color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+.btn-info:hover {
+    background-color: #138496 !important;
+    border-color: #117a8b !important;
+    color: white !important;
+}
+
+/* SECONDARY BUTTONS - Back/Cancel actions */
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    color: white !important;
+}
+
+/* Logout button hover colour */
+.logout-btn {
+    background-color: transparent !important;
+    border-color: white !important;
+    color: white !important;
+}
+
+.logout-btn:hover {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Small button styling */
+.btn-sm {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.2rem !important;
+}
+
+/* Large button styling */
+.btn-lg {
+    padding: 0.5rem 1rem !important;
+    font-size: 1.25rem !important;
+    border-radius: 0.3rem !important;
+}
+
+/* Disabled button styling */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+}
+
+/* Header bar styling */
+.navbar-custom {
+    background-color: #060645;      
+    padding: 10px 20px;
+}
+
+/* Logo */
+.logo {
+    width: auto;     
+    height: 45px;               
+    margin-right: 5px;             
+}
+
+/* "Open University" text */
+.navbar-title {
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 600;
+}

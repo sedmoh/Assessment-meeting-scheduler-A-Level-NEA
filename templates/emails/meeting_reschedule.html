@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .header { 
+            background-color: #ffc107; 
+            color: #333; 
+            padding: 20px; 
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content { 
+            background-color: #f9f9f9; 
+            padding: 20px; 
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .details { 
+            background-color: white; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-left: 4px solid #ffc107;
+            border-radius: 3px;
+        }
+        .details h3 {
+            margin-top: 0;
+            color: #ffc107;
+        }
+        .details p { 
+            margin: 8px 0; 
+        }
+        .old-time { 
+            text-decoration: line-through; 
+            color: #999; 
+        }
+        .new-time { 
+            color: #1C46C0; 
+            font-weight: bold;
+            font-size: 18px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .footer { 
+            text-align: center; 
+            padding: 20px; 
+            color: #666; 
+            font-size: 12px;
+            background-color: #f0f0f0;
+            border-radius: 0 0 5px 5px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .label {
+            font-weight: bold;
+            color: #060645;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Meeting Rescheduled</h2>
+        </div>
+        <div class="content">
+            <p class="greeting">Hello {{ recipient_name }},</p>
+            <p>Your meeting has been rescheduled to a new time.</p>
+            
+            <div class="details">
+                <h3>Meeting Details:</h3>
+                <p><span class="label">Student:</span> {{ student_name }}</p>
+                <p><span class="label">Tutor:</span> {{ tutor_name }}</p>
+                
+                <div class="highlight">
+                    <p class="old-time"><span class="label">Previous Time:</span> {{ old_date }} at {{ old_time }}</p>
+                    <p><span class="label">New Time:</span></p>
+                    <p class="new-time">{{ new_date }} at {{ new_time }}</p>
+                </div>
+                
+                <p><span class="label">Duration:</span> {{ meeting_duration }} minutes</p>
+            </div>
+            
+            <p>Please make note of the new time and be available accordingly.</p>
+        </div>
+        <div class="footer">
+            <p>This is an automated message from the OU Scheduling System.</p>
+            <p>Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

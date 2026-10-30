@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Manage {{ tutor.name }}{% endblock %}
+{% block content %}
+<h2>Managing: {{ tutor.name }}</h2>
+
+<div class="card mb-4 border-info">
+    <div class="card-body">
+        <h5 class="card-title">Staff Actions</h5>
+        <a href="{{ url_for('book_on_behalf', tutor_id=tutor.user_id) }}" 
+           class="btn btn-success">
+            Book Meeting on Behalf
+        </a>
+        <a href="{{ url_for('select_tutor') }}" class="btn btn-secondary">
+            ← Back to Tutor List
+        </a>
+    </div>
+</div>
+
+<!-- Tutor's Availability -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ tutor.name }}'s Availability</h5>
+                {% if availability_slots %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for slot in availability_slots %}
+                        <tr>
+                            <td>{{ slot.start_time.strftime("%b %d, %Y") }}</td>
+                            <td>{{ slot.start_time.strftime("%H:%M") }} - {{ slot.end_time.strftime("%H:%M") }}</td>
+                            <td>
+                                {% if slot.booked %}
+                                    <span class="badge bg-danger">Booked</span>
+                                {% else %}
+                                    <span class="badge bg-success">Available</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ slot.notes or "-" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No availability slots.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tutor's Meetings -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ tutor.name }}'s Meetings</h5>
+                {% if tutor_meetings %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for meeting in tutor_meetings %}
+                        <tr>
+                            <td>{{ meeting.student.name }}</td>
+                            <td>{{ meeting.start_time.strftime("%b %d, %Y") }}</td>
+                            <td>{{ meeting.start_time.strftime("%H:%M") }} - {{ meeting.end_time.strftime("%H:%M") }}</td>
+                            <td><span class="badge bg-success">{{ meeting.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted">No meetings scheduled.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

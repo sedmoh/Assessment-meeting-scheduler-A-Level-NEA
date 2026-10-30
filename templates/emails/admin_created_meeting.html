@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        .header { 
+            background-color: #ff9800; 
+            color: white; 
+            padding: 20px; 
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content { 
+            background-color: #f9f9f9; 
+            padding: 20px; 
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+        .admin-notice {
+            background-color: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        .details { 
+            background-color: white; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-left: 4px solid #1C46C0;
+            border-radius: 3px;
+        }
+        .details h3 {
+            margin-top: 0;
+            color: #1C46C0;
+        }
+        .details p { 
+            margin: 8px 0; 
+        }
+        .teams-link-box {
+            background: linear-gradient(135deg, #464775 0%, #5b5fc7 100%);
+            color: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .teams-link-box h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: white;
+        }
+        .teams-button {
+            display: inline-block;
+            background-color: white;
+            color: #464775;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .teams-button:hover {
+            background-color: #f0f0f0;
+        }
+        .footer { 
+            text-align: center; 
+            padding: 20px; 
+            color: #666; 
+            font-size: 12px;
+            background-color: #f0f0f0;
+            border-radius: 0 0 5px 5px;
+        }
+        .label {
+            font-weight: bold;
+            color: #060645;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Meeting Scheduled by Administrator</h2>
+        </div>
+        <div class="content">
+            <p style="font-size: 16px; margin-bottom: 15px;">Hello {{ recipient_name }},</p>
+            
+            <div class="admin-notice">
+                <p style="margin: 0;"><strong>Administrator Action:</strong></p>
+                <p style="margin: 5px 0 0 0;">
+                    This meeting was created by <strong>{{ admin_name }}</strong> (System Administrator).
+                </p>
+                <p style="margin: 10px 0 0 0;">
+                    <strong>Reason:</strong> {{ admin_reason }}
+                </p>
+            </div>
+            
+            <p>A meeting has been scheduled for you:</p>
+            
+            <div class="details">
+                <h3>Meeting Details:</h3>
+                <p><span class="label">Student:</span> {{ student_name }}</p>
+                <p><span class="label">Tutor:</span> {{ tutor_name }}</p>
+                <p><span class="label">Date:</span> {{ meeting_date }}</p>
+                <p><span class="label">Time:</span> {{ meeting_start_time }} - {{ meeting_end_time }}</p>
+                <p><span class="label">Duration:</span> {{ meeting_duration }} minutes</p>
+                <p><span class="label">Status:</span> {{ meeting_status }}</p>
+                {% if meeting_notes %}
+                <p><span class="label">Notes:</span> {{ meeting_notes }}</p>
+                {% endif %}
+            </div>
+            
+            {% if teams_link %}
+            <div class="teams-link-box">
+                <h3>Join via Microsoft Teams</h3>
+                <p style="margin: 10px 0; font-size: 14px;">Click the button below to join the meeting:</p>
+                <a href="{{ teams_link }}" class="teams-button">
+                    Join Teams Meeting
+                </a>
+                <p style="margin-top: 15px; font-size: 12px; opacity: 0.9;">
+                    Meeting Link: <a href="{{ teams_link }}" style="color: white; text-decoration: underline;">{{ teams_link }}</a>
+                </p>
+            </div>
+            {% endif %}
+            
+            <p>Please ensure you are available at the scheduled time. If you have any concerns about this meeting, please contact the administrator or your coordinator.</p>
+        </div>
+        <div class="footer">
+            <p>This meeting was created by system administrator: {{ admin_name }}</p>
+            <p>This is an automated message from the OU Scheduling System.</p>
+            <p>Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

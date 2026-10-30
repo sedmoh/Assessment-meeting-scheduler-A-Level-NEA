@@ -1,0 +1,48 @@
+{%extends "base.html"%}
+{%block title%}Available Slots{%endblock%}
+{%block content%}
+<h2>Available Tutor Slots</h2>
+{% if slots %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tutor</th>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    <tbody>
+        {% for slot in slots %}
+        <tr>
+            <td>{{ slot.tutor.name }}</td>
+            <td>{{ slot.start_time.strftime("%Y-%m-%d") }}</td>
+            <td>{{ slot.start_time.strftime("%H:%M") }}</td>
+            <td>{{ slot.end_time.strftime("%H:%M") }}</td>
+            <td>
+                {% if slot.booked %}
+                    <span class="badge bg-danger">Booked</span>
+                {% else %}
+                    <span class="badge bg-success">Available</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if not slot.booked %}
+                    <a href="{{ url_for('book_meeting', slot_id=slot.availability_id) }}" class="btn btn-sm btn-primary" aria-label="Book available slot" title="Book available slot">Book</a>
+                    <i class="fa fa-trash" aria-hidden="true"></i> </button>
+                {% else %}
+                    <button class="btn btn-sm btn-secondary" disabled>Unavailable</button>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p class="alert alert-info">No available slots found.</p>
+{% endif %}
+<a href="{{ url_for('dashboard') }}" class="btn btn-custom" aria-label="Student dashboard" title="Student dashboard">Back to Dashboard</a>
+<i class="fa fa-trash" aria-hidden="true"></i> </button>
+{%endblock%}

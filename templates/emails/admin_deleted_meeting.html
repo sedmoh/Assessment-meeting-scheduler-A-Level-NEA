@@ -1,0 +1,54 @@
+<!-- admin_deleted_meeting.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .header h2 { margin: 0; font-size: 24px; }
+        .content { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+        .admin-notice { background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 3px; color: #721c24; }
+        .details { background-color: white; padding: 15px; margin: 15px 0; border-left: 4px solid #dc3545; border-radius: 3px; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; background-color: #f0f0f0; border-radius: 0 0 5px 5px; }
+        .label { font-weight: bold; color: #060645; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Meeting Cancelled by Administrator</h2>
+        </div>
+        <div class="content">
+            <p style="font-size: 16px; margin-bottom: 15px;">Hello {{ recipient_name }},</p>
+            
+            <div class="admin-notice">
+                <p style="margin: 0;"><strong>Administrator Action:</strong></p>
+                <p style="margin: 5px 0 0 0;">
+                    This meeting was cancelled by <strong>{{ admin_name }}</strong> (System Administrator).
+                </p>
+                <p style="margin: 10px 0 0 0;">
+                    <strong>Reason:</strong> {{ admin_reason }}
+                </p>
+            </div>
+            
+            <p>The following meeting has been cancelled:</p>
+            
+            <div class="details">
+                <h3 style="margin-top: 0; color: #dc3545;">Cancelled Meeting:</h3>
+                <p><span class="label">Student:</span> {{ student_name }}</p>
+                <p><span class="label">Tutor:</span> {{ tutor_name }}</p>
+                <p><span class="label">Date:</span> {{ meeting_date }}</p>
+                <p><span class="label">Time:</span> {{ meeting_start_time }} - {{ meeting_end_time }}</p>
+                <p><span class="label">Duration:</span> {{ meeting_duration }} minutes</p>
+            </div>
+            
+            <p>Please remove this meeting from your calendar. If you need to reschedule, please contact your tutor or use the scheduling system.</p>
+        </div>
+        <div class="footer">
+            <p>This meeting was cancelled by system administrator: {{ admin_name }}</p>
+            <p>This is an automated message from the OU Scheduling System.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Create Availability{% endblock %}
+{% block content %}
+<h2>Create Availability Slot</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" 
+                       class="form-control" 
+                       id="date" 
+                       name="date" 
+                       value="{{ form_data.date or '' }}"
+                       required>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="start_time" class="form-label">Start Time</label>
+                    <input type="time" 
+                           class="form-control" 
+                           id="start_time" 
+                           name="start_time" 
+                           value="{{ form_data.start_time or '' }}"
+                           required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="end_time" class="form-label">End Time</label>
+                    <input type="time" 
+                           class="form-control" 
+                           id="end_time" 
+                           name="end_time" 
+                           value="{{ form_data.end_time or '' }}"
+                           required>
+                </div>
+            </div>
+            
+            <!-- Slot Slicing Options -->
+            <div class="card mb-3 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Auto-Slice into Multiple Slots</h5>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="slice_slots" 
+                               name="slice_slots"
+                               {% if form_data.slice_slots %}checked{% endif %}>
+                        <label class="form-check-label" for="slice_slots">
+                            <strong>Automatically split into multiple bookable slots</strong>
+                        </label>
+                        <small class="form-text text-muted d-block">
+                            Enable this to divide your availability into smaller time slots
+                        </small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label for="slot_duration" class="form-label">Slot Duration</label>
+                            <select class="form-select" id="slot_duration" name="slot_duration">
+                                <option value="30" {% if form_data.slot_duration == 30 %}selected{% endif %}>30 minutes</option>
+                                <option value="45" {% if form_data.slot_duration == 45 %}selected{% endif %}>45 minutes</option>
+                                <option value="60" {% if form_data.slot_duration == 60 or not form_data.slot_duration %}selected{% endif %}>1 hour</option>
+                                <option value="90" {% if form_data.slot_duration == 90 %}selected{% endif %}>1.5 hours</option>
+                                <option value="120" {% if form_data.slot_duration == 120 %}selected{% endif %}>2 hours</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-2">
+                            <label for="break_duration" class="form-label">Break Between Slots</label>
+                            <select class="form-select" id="break_duration" name="break_duration">
+                                <option value="0" {% if form_data.break_duration == 0 or not form_data.break_duration %}selected{% endif %}>No break</option>
+                                <option value="5" {% if form_data.break_duration == 5 %}selected{% endif %}>5 minutes</option>
+                                <option value="10" {% if form_data.break_duration == 10 %}selected{% endif %}>10 minutes</option>
+                                <option value="15" {% if form_data.break_duration == 15 %}selected{% endif %}>15 minutes</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Time for rest between consecutive slots
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="notes" class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" 
+                          id="notes" 
+                          name="notes" 
+                          rows="3" 
+                          placeholder="e.g., Office hours, specific topics">{{ form_data.notes or '' }}</textarea>
+                <small class="text-muted">These notes will be applied to all created slots</small>
+            </div>
+            
+            <!-- Action Buttons -->
+            <button type="submit" name="action" value="preview" class="btn btn-info">
+                Preview Slots
+            </button>
+            
+            {% if preview_slots %}
+                <button type="submit" name="action" value="create" class="btn btn-success">
+                    Confirm & Create
+                </button>
+            {% endif %}
+            
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Section -->
+{% if preview_slots %}
+<div class="card mt-4 border-success">
+    <div class="card-body">
+        <h5 class="card-title">Preview of Slots to be Created</h5>
+        
+        <div class="alert alert-info">
+            <strong>Total Slots:</strong> {{ preview_slots|length }}
+            <br>
+            <strong>Date:</strong> {{ form_data.date }}
+            {% if form_data.break_duration and form_data.break_duration > 0 %}
+            <br>
+            <strong>Break Duration:</strong> {{ form_data.break_duration }} minutes between slots
+            {% endif %}
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Duration</th>
+                        <th>Break After</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for slot in preview_slots %}
+                    <tr>
+                        <td>{{ slot.number }}</td>
+                        <td>{{ slot.start }}</td>
+                        <td>{{ slot.end }}</td>
+                        <td>{{ slot.duration }} minutes</td>
+                        <td>
+                            {% if slot.break_after %}
+                                <span class="badge bg-secondary">{{ slot.break_after }} min break</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="alert alert-warning">
+            Click "Confirm & Create" above to create these {{ preview_slots|length }} slot(s)
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

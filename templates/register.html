@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Register</h2>
+            </div>
+            <div class="card-body">
+                
+                <!-- Display validation errors -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'danger' else 'info' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name *</label>
+                        <input type="text" 
+                               name="name" 
+                               id="name"
+                               class="form-control" 
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[a-zA-Z\s'\-]+"
+                               placeholder="John Doe">
+                        <small class="form-text text-muted">
+                            Letters, spaces, hyphens, and apostrophes only (2-50 characters)
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address *</label>
+                        <input type="email" 
+                               name="email" 
+                               id="email"
+                               class="form-control" 
+                               required
+                               placeholder="user@example.com">
+                        <small class="form-text text-muted">
+                            Must be a valid email format (e.g., user@example.com)
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password *</label>
+                        <input type="password" 
+                               name="password" 
+                               id="password"
+                               class="form-control" 
+                               required
+                               minlength="6"
+                               placeholder="••••••••">
+                        <small class="form-text text-muted">
+                            Minimum 6 characters
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role *</label>
+                        <select name="role" id="role" class="form-control" required>
+                            <option value="">Select a role...</option>
+                            <option value="student">Student</option>
+                            <option value="tutor">Tutor</option>
+                            <option value="staff_tutor">Staff Tutor</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                        <a href="{{ url_for('login') }}" class="btn btn-secondary">Already have an account? Login</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="card mt-3 border-info">
+            <div class="card-body">
+                <h6 class="card-title">Registration Requirements:</h6>
+                <ul class="mb-0 small">
+                    <li><strong>Name:</strong> Letters, spaces, hyphens, apostrophes (2-50 chars)</li>
+                    <li><strong>Email:</strong> Valid email format (validated using regex)</li>
+                    <li><strong>Password:</strong> At least 6 characters</li>
+                    <li><strong>Role:</strong> Choose appropriate role for your account</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2>Tutor Performance Statistics</h2>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tutor Name</th>
+                <th>Total Slots</th>
+                <th>Booked</th>
+                <th>Available</th>
+                <th>Total Meetings</th>
+                <th>Avg Duration</th>
+                <th>Cancellation %</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            {% for stat in stats %}
+            <tr>
+                <td>{{ stat.name }}</td>
+                <td>{{ stat.total_slots }}</td>
+                <td>{{ stat.booked_slots }}</td>
+                <td>{{ stat.available_slots }}</td>
+                <td>{{ stat.total_meetings }}</td>
+                <td>{{ stat.avg_duration|round(1) if stat.avg_duration else 0 }} min</td>
+                <td>{{ stat.cancellation_rate|round(1) }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

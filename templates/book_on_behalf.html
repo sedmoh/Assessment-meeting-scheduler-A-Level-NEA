@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Book on Behalf of {{ tutor.name }}{% endblock %}
+{% block content %}
+<h2>Book Meeting for {{ tutor.name }}</h2>
+
+<div class="alert alert-info">
+    <strong>Staff Tutor:</strong> You are booking a meeting on behalf of {{ tutor.name }}.
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="student_id" class="form-label">Select Student</label>
+                <select class="form-select" id="student_id" name="student_id" required>
+                    <option value="">Choose a student...</option>
+                    {% for student in students %}
+                    <option value="{{ student.user_id }}">{{ student.name }} ({{ student.email }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="slot_id" class="form-label">Select Time Slot</label>
+                <select class="form-select" id="slot_id" name="slot_id" required>
+                    <option value="">Choose a time slot...</option>
+                    {% for slot in available_slots %}
+                    <option value="{{ slot.availability_id }}">
+                        {{ slot.start_time.strftime("%b %d, %Y at %H:%M") }} - {{ slot.end_time.strftime("%H:%M") }}
+                        {% if slot.notes %} ({{ slot.notes }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if not available_slots %}
+            <div class="alert alert-warning">
+                No available slots for this tutor. They need to create availability first.
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-success" {% if not available_slots %}disabled{% endif %}>
+                Book Meeting
+            </button>
+            <a href="{{ url_for('manage_tutor', tutor_id=tutor.user_id) }}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

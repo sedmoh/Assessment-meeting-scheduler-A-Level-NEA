@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Edit Meeting{% endblock %}
+{% block content %}
+
+<h2>Admin: Edit Meeting</h2>
+
+<div class="alert alert-warning">
+    <strong>Admin Override:</strong> You are modifying an existing meeting. Both parties will be notified of the changes.
+</div>
+
+<!-- Current Meeting Info -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Current Meeting Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Student:</strong> {{ meeting.student.name }}</p>
+                        <p><strong>Tutor:</strong> {{ meeting.tutor.name }}</p>
+                        <p><strong>Date:</strong> {{ meeting.start_time.strftime('%b %d, %Y') }}</p>
+                        <p><strong>Time:</strong> {{ meeting.start_time.strftime('%H:%M') }} - {{ meeting.end_time.strftime('%H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
+                        <p><strong>Status:</strong> <span class="badge bg-success">{{ meeting.status }}</span></p>
+                        {% if meeting.adjustment_flag %}
+                            <p><span class="badge bg-warning text-dark">Reasonable Adjustment (+25%)</span></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">Edit Meeting Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Student (read-only, can't change) -->
+                    <div class="mb-3">
+                        <label class="form-label">Student</label>
+                        <input type="text" class="form-control" value="{{ meeting.student.name }}" disabled>
+                        <small class="text-muted">Cannot change student - cancel and create new meeting instead</small>
+                    </div>
+
+                    <!-- Tutor (read-only, can't change) -->
+                    <div class="mb-3">
+                        <label class="form-label">Tutor</label>
+                        <input type="text" class="form-control" value="{{ meeting.tutor.name }}" disabled>
+                        <small class="text-muted">Cannot change tutor - cancel and create new meeting instead</small>
+                    </div>
+
+                    <!-- Date and Time -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="date" name="date" 
+                                   value="{{ meeting.start_time.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="start_time" class="form-label">Start Time *</label>
+                            <input type="time" class="form-control" id="start_time" name="start_time" 
+                                   value="{{ meeting.start_time.strftime('%H:%M') }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (minutes) *</label>
+                        <input type="number" class="form-control" id="duration" name="duration" 
+                               min="15" max="180" step="15" value="{{ meeting.duration }}" required>
+                        <small class="text-muted">
+                            Current: {{ meeting.duration }} minutes
+                        </small>
+                    </div>
+
+                    <!-- Meeting Link -->
+                    <div class="mb-3">
+                        <label for="meeting_link" class="form-label">Meeting Link</label>
+                        <input type="url" class="form-control" id="meeting_link" name="meeting_link" 
+                               value="{{ meeting.meeting_link or '' }}"
+                               placeholder="https://teams.microsoft.com/...">
+                    </div>
+
+                    <!-- Public Notes -->
+                    <div class="mb-3">
+                        <label for="public_notes" class="form-label">Public Notes</label>
+                        <textarea class="form-control" id="public_notes" name="public_notes" rows="3">{{ meeting.public_notes or '' }}</textarea>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status *</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Confirmed" {% if meeting.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                            <option value="Completed" {% if meeting.status == 'Completed' %}selected{% endif %}>Completed</option>
+                            <option value="Cancelled" {% if meeting.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </div>
+
+                    <!-- Admin Reason -->
+                    <div class="mb-3">
+                        <label for="admin_reason" class="form-label">Reason for Changes *</label>
+                        <textarea class="form-control" id="admin_reason" name="admin_reason" rows="2" required
+                                  placeholder="e.g., Student requested time change, Technical issues with original slot"></textarea>
+                        <small class="text-muted">
+                            This will be included in the notification emails
+                        </small>
+                    </div>
+
+                    <!-- Override Options -->
+                    <div class="card border-warning mb-3">
+                        <div class="card-header bg-warning">
+                            <strong>Admin Override Options</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="skip_conflict_check" 
+                                       name="skip_conflict_check">
+                                <label class="form-check-label" for="skip_conflict_check">
+                                    Skip conflict detection for new time
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            Save Changes
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="col-md-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">What You Can Change</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Editable:</strong></p>
+                <ul>
+                    <li>Date and time</li>
+                    <li>Duration</li>
+                    <li>Meeting link</li>
+                    <li>Public notes</li>
+                    <li>Status</li>
+                </ul>
+                
+                <p><strong>Cannot change:</strong></p>
+                <ul>
+                    <li>Student</li>
+                    <li>Tutor</li>
+                </ul>
+                <small class="text-muted">
+                    To change participants, cancel this meeting and create a new one
+                </small>
+            </div>
+        </div>
+
+        <div class="card border-danger mt-3">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Delete Meeting</h5>
+            </div>
+            <div class="card-body">
+                <p>Permanently delete this meeting.</p>
+                <form method="POST" action="{{ url_for('admin_delete_meeting', meeting_id=meeting.meeting_id) }}"
+                      onsubmit="return confirm('Are you sure you want to delete this meeting? Both parties will be notified.');">
+                    <div class="mb-3">
+                        <label for="delete_reason" class="form-label">Deletion Reason *</label>
+                        <textarea class="form-control" id="delete_reason" name="admin_reason" rows="2" required
+                                  placeholder="Reason for cancellation"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Delete Meeting</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

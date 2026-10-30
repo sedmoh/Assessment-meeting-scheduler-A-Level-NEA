@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% block title %}Admin Reports{% endblock %}
+{% block content %}
+<h2>System Reports & Analytics</h2>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Slots</h5>
+                <h2>{{ availability_util.total_slots }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Booked Slots</h5>
+                <h2>{{ availability_util.booked_slots }}</h2>
+                <small>{{ availability_util.utilisation_rate }}% utilisation</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Available Slots</h5>
+                <h2>{{ availability_util.available_slots }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">Active Tutors</h5>
+                <h2>{{ busy_tutors|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tutor Performance Statistics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tutor Performance Statistics</h5>
+
+                {% if tutor_stats %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Tutor</th>
+                                <th>Total Meetings</th>
+                                <th>Avg Duration</th>
+                                <th>Total Minutes</th>
+                                <th>Confirmed</th>
+                                <th>Cancelled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tutor in tutor_stats %}
+                            <tr>
+                                <td>{{ tutor[1] }}</td>
+                                <td>{{ tutor[2] }}</td>
+                                <td>{{ tutor[3]|round(1) if tutor[3] else 0 }} min</td>
+                                <td>{{ tutor[4] or 0 }}</td>
+                                <td><span class="badge bg-success">{{ tutor[7] }}</span></td>
+                                <td><span class="badge bg-danger">{{ tutor[8] }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No tutor statistics available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Busy Tutors -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Top 10 Busiest Tutors</h5>
+                {% if busy_tutors %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Total Meetings</th>
+                                <th>Total Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tutor in busy_tutors %}
+                            <tr>
+                                <td><strong>{{ loop.index }}</strong></td>
+                                <td>{{ tutor[1] }}</td>
+                                <td><small>{{ tutor[2] }}</small></td>
+                                <td><span class="badge bg-primary">{{ tutor[3] }}</span></td>
+                                <td>{{ (tutor[4] / 60)|round(2) if tutor[4] else 0 }} hrs</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No tutor data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly Distribution -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Weekly Meeting Distribution</h5>
+                {% if weekly_dist %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Day</th>
+                                <th>Meetings</th>
+                                <th>Avg Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in weekly_dist %}
+                            <tr>
+                                <td><strong>{{ day.day }}</strong></td>
+                                <td><span class="badge bg-success">{{ day.meeting_count }}</span></td>
+                                <td>{{ day.avg_duration }} min</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No weekly distribution data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Time Slots -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Most Popular Time Slots</h5>
+                {% if popular_times %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Time</th>
+                                <th>Bookings</th>
+                                <th>Unique Students</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in popular_times %}
+                            <tr>
+                                <td><strong>{{ slot.time }}</strong></td>
+                                <td><span class="badge bg-info">{{ slot.bookings }}</span></td>
+                                <td>{{ slot.unique_students }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No time slot data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tutor Workload Comparison -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tutor Workload Comparison</h5>
+                {% if workload_comparison %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Tutor</th>
+                                <th>Total Meetings</th>
+                                <th>Total Hours</th>
+                                <th>vs Average</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tutor in workload_comparison %}
+                            <tr>
+                                <td>{{ tutor.name }}</td>
+                                <td><span class="badge bg-primary">{{ tutor.total_meetings }}</span></td>
+                                <td>{{ tutor.total_hours }} hrs</td>
+                                <td>
+                                    {% if tutor.vs_average > 10 %}
+                                        <span class="badge bg-danger">+{{ tutor.vs_average }}%</span>
+                                    {% elif tutor.vs_average > 0 %}
+                                        <span class="badge bg-warning text-dark">+{{ tutor.vs_average }}%</span>
+                                    {% elif tutor.vs_average < -10 %}
+                                        <span class="badge bg-info">{{ tutor.vs_average }}%</span>
+                                    {% elif tutor.vs_average < 0 %}
+                                        <span class="badge bg-success">{{ tutor.vs_average }}%</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Average</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No workload comparison data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Meetings -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Meetings by Month</h5>
+                {% if monthly_meetings %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Month</th>
+                                <th>Year</th>
+                                <th>Meetings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for month in monthly_meetings %}
+                            <tr>
+                                <td><strong>{{ month.month_name }}</strong></td>
+                                <td>{{ month.year }}</td>
+                                <td><span class="badge bg-success">{{ month.count }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No monthly data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Engagement -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Student Engagement Rate</h5>
+                {% if student_engagement %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student</th>
+                                <th>Bookings</th>
+                                <th>Completed</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in student_engagement[:10] %}
+                            <tr>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.total_bookings }}</td>
+                                <td>{{ student.completed }}</td>
+                                <td>
+                                    {% if student.engagement_rate >= 80 %}
+                                        <span class="badge bg-success">{{ student.engagement_rate }}%</span>
+                                    {% elif student.engagement_rate >= 60 %}
+                                        <span class="badge bg-warning text-dark">{{ student.engagement_rate }}%</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ student.engagement_rate }}%</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No student engagement data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Students with Reasonable Adjustments -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Students with Reasonable Adjustments</h5>
+
+                {% if students_with_adjustments %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Total Meetings</th>
+                                <th>Adjusted Meetings</th>
+                                <th>Adjusted Minutes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students_with_adjustments %}
+                            <tr>
+                                <td>{{ student[1] }}</td>
+                                <td>{{ student[2] }}</td>
+                                <td>{{ student[4] }}</td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ student[5] }}
+                                    </span>
+                                </td>
+                                <td>{{ student[6] }} min</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No students with adjustments found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 mb-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    <button onclick="window.print()" class="btn btn-info">Offline Report</button>
+</div>
+
+<style>
+    @media print {
+        .btn, .navbar {
+            display: none !important;
+        }
+    }
+</style>
+
+{% endblock %}

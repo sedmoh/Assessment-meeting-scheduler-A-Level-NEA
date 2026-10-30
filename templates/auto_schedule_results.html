@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Auto-schedule Results</h2>
+
+    {% if best_slot %}
+        <div class="alert alert-success">
+            <strong>Optimal Slot Found:</strong><br>
+            {{ best_slot.start_time.strftime("%d %b %Y") }} at {{ best_slot.start_time.strftime("%H:%M") }}
+        </div>
+    {% else %}
+        <div class="alert alert-danger">
+            No optimal slot was found.
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Return to Dashboard</a>
+</div>
+{% endblock %}

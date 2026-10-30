@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+{% block content %}
+<h2>Student Dashboard</h2>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Book a Meeting</h5>
+                <a href="{{ url_for('view_availability') }}" class="btn btn-custom" aria-label="View available slots" title="View available slots">View Tutor Availability</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h5 class="card-title">Urgent Booking</h5>
+                <p class="text-muted small">Book within next 48 hours</p>
+                <a href="{{ url_for('urgent_booking') }}" class="btn btn-danger">Make Urgent Booking</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">My Meetings</h5>
+                <p>You have {{ upcoming_meetings|length }} upcoming meeting(s)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Reasonable Adjustments</h5>
+                <p class="mb-0">Manage your accessibility requirements for extended meeting times.</p>
+                <a href="{{ url_for('manage_reasonable_adjustment') }}" class="btn btn-info btn-sm mt-2">Manage Adjustments</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if upcoming_meetings %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Booked Meetings</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tutor</th>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in upcoming_meetings %}
+                            <tr>
+                                <td>
+                                    {{ meeting.tutor.name }}
+                                    {% if meeting.adjustment_flag %}
+                                        <span class="badge bg-warning text-dark ms-1">+25%</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ meeting.start_time.strftime('%b %d, %Y') }}</td>
+                                <td>{{ meeting.start_time.strftime('%H:%M') }}</td>
+                                <td>{{ meeting.end_time.strftime('%H:%M') }}</td>
+                                <td><span class="badge bg-success">{{ meeting.status }}</span></td>
+                                <td>
+                                    <a href="{{ url_for('view_meeting_notes', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="View meeting notes">
+                                        View Notes
+                                    </a>
+                                    <a href="{{ url_for('reschedule_meeting', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Change meeting slot">Reschedule</a>
+                                    <a href="{{ url_for('auto_schedule_setup', meeting_id=meeting.meeting_id) }}" 
+                                       class="btn btn-sm btn-info" 
+                                       title="Find optimal slot">Auto-Find Slot</a>
+                                    <form method="POST" action="{{ url_for('cancel_meeting', meeting_id=meeting.meeting_id) }}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Are you sure you want to cancel this meeting?');">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Cancel booked meeting">Cancel</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if past_meetings %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Past Meetings</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tutor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in past_meetings %}
+                            <tr>
+                                <td>{{ meeting.tutor.name }}</td>
+                                <td>{{ meeting.start_time.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    {{ meeting.start_time.strftime('%H:%M') }} –
+                                    {{ meeting.end_time.strftime('%H:%M') }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ meeting.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('view_meeting_notes', meeting_id=meeting.meeting_id) }}"
+                                       class="btn btn-sm btn-outline-dark">
+                                        View Notes
+                                    </a>
+                                </td>
+                            </tr>    
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <small class="text-muted">
+                    Completed meetings are archived here. Notes remain accessible.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

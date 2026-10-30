@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Urgent Booking{% endblock %}
+{% block content %}
+<h2>Urgent Booking</h2>
+
+<div class="alert alert-warning">
+    <strong>Priority Booking:</strong> This feature allows you to book meetings within the next 48 hours with high priority.
+    These bookings are processed immediately and marked as urgent.
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Available Urgent Slots (Next 48 Hours)</h5>
+        
+        {% if slots %}
+        <form method="POST">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Select</th>
+                            <th>Tutor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Duration</th>
+                            <th>Urgency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for slot in slots %}
+                        {% set time_until = (slot.start_time - now).total_seconds() / 3600 %}
+                        <tr {% if time_until < 24 %}class="table-danger"{% elif time_until < 36 %}class="table-warning"{% endif %}>
+                            <td>
+                                <input type="radio" name="slot_id" value="{{ slot.availability_id }}" required>
+                            </td>
+                            <td>{{ slot.tutor.name }}</td>
+                            <td>{{ slot.start_time.strftime('%b %d, %Y') }}</td>
+                            <td>{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</td>
+                            <td>{{ ((slot.end_time - slot.start_time).total_seconds() / 60)|int }} min</td>
+                            <td>
+                                {% if time_until < 6 %}
+                                    <span class="badge bg-danger">CRITICAL (< 6hrs)</span>
+                                {% elif time_until < 24 %}
+                                    <span class="badge bg-danger">Very Urgent (< 24hrs)</span>
+                                {% elif time_until < 36 %}
+                                    <span class="badge bg-warning text-dark">Urgent (< 36hrs)</span>
+                                {% else %}
+                                    <span class="badge bg-info">High Priority</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                <strong>Note:</strong> 
+                <ul class="mb-0">
+                    <li>Red-highlighted slots are within 24 hours (highest priority)</li>
+                    <li>Yellow-highlighted slots are within 36 hours (high priority)</li>
+                    <li>If you have reasonable adjustments, extra time will be added automatically</li>
+                </ul>
+            </div>
+            
+            <button type="submit" class="btn btn-danger">
+                Confirm Urgent Booking
+            </button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+        {% else %}
+        <div class="alert alert-info">
+            <strong>No urgent slots available.</strong>
+            <p class="mb-0">There are no available slots within the next 48 hours. Try <a href="{{ url_for('view_availability') }}">regular booking</a> instead.</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

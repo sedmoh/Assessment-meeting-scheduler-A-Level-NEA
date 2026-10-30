@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}{% if user %}Edit User{% else %}Create User{% endif %}{% endblock %}
+{% block content %}
+
+<h2>{% if user %}Edit User: {{ user.name }}{% else %}Create New User{% endif %}</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header {% if user %}bg-warning{% else %}bg-success text-white{% endif %}">
+                <h5 class="mb-0">
+                    {% if user %}Edit Account Details{% else %}New Account Details{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Basic Information -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ user.name if user else '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address *</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ user.email if user else '' }}" required>
+                        <small class="text-muted">Must be a valid email format</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">User Role *</label>
+                        <select class="form-select" id="role" name="role" required onchange="toggleRoleSpecificOptions()">
+                            <option value="">Select a role...</option>
+                            <option value="student" {% if user and user.role == 'student' %}selected{% endif %}>Student</option>
+                            <option value="tutor" {% if user and user.role == 'tutor' %}selected{% endif %}>Tutor</option>
+                            <option value="staff_tutor" {% if user and user.role == 'staff_tutor' %}selected{% endif %}>Staff Tutor</option>
+                            <option value="admin" {% if user and user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </div>
+
+                    {% if not user %}
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password *</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               minlength="6" required>
+                        <small class="text-muted">Minimum 6 characters</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password *</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                               minlength="6" required>
+                    </div>
+                    {% endif %}
+
+                    <!-- Student-Specific Options -->
+                    <div id="student_options" style="display: none;">
+                        <hr>
+                        <h5>Student Settings</h5>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="has_adjustment" name="has_adjustment"
+                                       {% if user and user.student_profile and user.student_profile.has_adjustment %}checked{% endif %}>
+                                <label class="form-check-label" for="has_adjustment">
+                                    <strong>Enable Reasonable Adjustments (+25% extra time)</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted">Admin override: Enables accessibility support for this student</small>
+                        </div>
+                    </div>
+
+                    <!-- Tutor-Specific Options -->
+                    <div id="tutor_options" style="display: none;">
+                        <hr>
+                        <h5>Tutor Settings</h5>
+                        
+                        <div class="mb-3">
+                            <label for="daily_limit" class="form-label">Daily Meeting Limit</label>
+                            <input type="number" class="form-control" id="daily_limit" name="daily_limit" 
+                                   min="1" max="10" value="4">
+                            <small class="text-muted">Default: 4 meetings per day</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="weekly_limit" class="form-label">Weekly Meeting Limit</label>
+                            <input type="number" class="form-control" id="weekly_limit" name="weekly_limit" 
+                                   min="1" max="20" value="10">
+                            <small class="text-muted">Default: 10 meetings per week</small>
+                        </div>
+                    </div>
+
+                    <!-- Staff Tutor-Specific Options -->
+                    <div id="staff_tutor_options" style="display: none;">
+                        <hr>
+                        <h5>Staff Tutor Settings</h5>
+                        
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" name="department" 
+                                   value="Computing" placeholder="e.g., Computing, Mathematics">
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="can_override_limits" 
+                                       name="can_override_limits" checked>
+                                <label class="form-check-label" for="can_override_limits">
+                                    <strong>Can Override Booking Limits</strong>
+                                </label>
+                            </div>
+                            <small class="text-muted">Allows this staff tutor to bypass scheduling restrictions</small>
+                        </div>
+                    </div>
+
+                    <!-- Admin-Specific Options -->
+                    <div id="admin_options" style="display: none;">
+                        <hr>
+                        <h5>Admin Settings</h5>
+                        
+                        <div class="mb-3">
+                            <label for="access_level" class="form-label">Access Level</label>
+                            <select class="form-select" id="access_level" name="access_level">
+                                <option value="full" selected>Full Access</option>
+                                <option value="limited">Limited Access</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="permissions" class="form-label">Permissions</label>
+                            <input type="text" class="form-control" id="permissions" name="permissions" 
+                                   value="all" placeholder="e.g., all, reports_only">
+                            <small class="text-muted">Comma-separated list of permissions</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                        <button type="submit" class="btn {% if user %}btn-warning{% else %}btn-success{% endif %} btn-lg">
+                            {% if user %}Update User{% else %}Create User{% endif %}
+                        </button>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Admin Override Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>As an admin, you can:</strong></p>
+                <ul>
+                    <li>Create accounts for any role</li>
+                    <li>Edit user details directly</li>
+                    <li>Toggle reasonable adjustments</li>
+                    <li>Modify tutor limits</li>
+                    <li>Set staff tutor permissions</li>
+                    <li>Delete user accounts</li>
+                </ul>
+
+                {% if user %}
+                <hr>
+                <p><strong>User Info:</strong></p>
+                <ul class="list-unstyled">
+                    <li><small>ID: {{ user.user_id }}</small></li>
+                    <li><small>Created: {{ user.date_created.strftime('%b %d, %Y') }}</small></li>
+                    {% if user.role == 'student' %}
+                        {% set meetings_count = user.student_meetings|length %}
+                        <li><small>Meetings: {{ meetings_count }}</small></li>
+                    {% elif user.role in ['tutor', 'staff_tutor'] %}
+                        {% set meetings_count = user.tutor_meetings|length %}
+                        <li><small>Meetings: {{ meetings_count }}</small></li>
+                    {% endif %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+{% endblock %}

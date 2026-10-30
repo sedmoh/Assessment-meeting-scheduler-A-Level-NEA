@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Reasonable Adjustments{% endblock %}
+{% block content %}
+
+<h1 class="mb-4">Reasonable Adjustments</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <section class="card">
+            <div class="card-body">
+                <h2 class="card-title">Adjustment Settings</h2>
+
+                <form method="POST">
+                    <div class="form-check form-switch mb-3">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="adjustmentToggle"
+                            name="adjustment_flag"
+                            {% if student_profile.has_adjustment %}checked{% endif %}
+                        >
+                        <label class="form-check-label" for="adjustmentToggle">
+                            Enable reasonable adjustment (+25% extra time)
+                        </label>
+                    </div>
+
+                    {% if student_profile.has_adjustment %}
+                        <div class="alert alert-success">
+                            <strong>Enabled:</strong> Your bookings automatically include extra time.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <strong>Disabled:</strong> Standard booking durations apply.
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

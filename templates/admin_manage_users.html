@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<h2>Manage All Users</h2>
+
+<!-- Filter Controls -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="role_filter" class="form-label">Filter by Role</label>
+                        <select class="form-select" id="role_filter" name="role">
+                            <option value="">All Roles</option>
+                            <option value="student" {% if request.args.get('role') == 'student' %}selected{% endif %}>Students</option>
+                            <option value="tutor" {% if request.args.get('role') == 'tutor' %}selected{% endif %}>Tutors</option>
+                            <option value="staff_tutor" {% if request.args.get('role') == 'staff_tutor' %}selected{% endif %}>Staff Tutors</option>
+                            <option value="admin" {% if request.args.get('role') == 'admin' %}selected{% endif %}>Admins</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search by Name/Email</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Enter name or email" value="{{ request.args.get('search', '') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <a href="{{ url_for('admin_manage_users') }}" class="btn btn-secondary">Clear</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Grid -->
+<div class="row">
+    {% if users %}
+        {% for user in users %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header 
+                    {% if user.role == 'admin' %}bg-danger text-white
+                    {% elif user.role == 'staff_tutor' %}bg-warning
+                    {% elif user.role == 'tutor' %}bg-info text-white
+                    {% else %}bg-secondary text-white{% endif %}">
+                    <h5 class="mb-0">{{ user.name }}</h5>
+                    <small>
+                        <span class="badge 
+                            {% if user.role == 'admin' %}bg-light text-dark
+                            {% elif user.role == 'staff_tutor' %}bg-dark
+                            {% else %}bg-light text-dark{% endif %}">
+                            {{ user.role|replace('_', ' ')|title }}
+                        </span>
+                    </small>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Email:</strong><br>
+                        <small>{{ user.email }}</small>
+                    </p>
+                    <p class="card-text">
+                        <strong>User ID:</strong> {{ user.user_id }}<br>
+                        <strong>Created:</strong> {{ user.date_created.strftime('%b %d, %Y') }}
+                    </p>
+                    
+                    <!-- Role-specific info -->
+                    {% if user.role == 'student' %}
+                        {% set profile = user.student_profile %}
+                        {% if profile and profile.has_adjustment %}
+                            <p class="card-text">
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-universal-access"></i> Reasonable Adjustment
+                                </span>
+                            </p>
+                        {% endif %}
+                        {% set meetings_count = user.student_meetings|length %}
+                        <p class="card-text">
+                            <strong>Meetings:</strong> {{ meetings_count }}
+                        </p>
+                    {% elif user.role in ['tutor', 'staff_tutor'] %}
+                        {% set meetings_count = user.tutor_meetings|length %}
+                        {% set availability_count = user.availability_slots|length %}
+                        <p class="card-text">
+                            <strong>Meetings:</strong> {{ meetings_count }}<br>
+                            <strong>Availability Slots:</strong> {{ availability_count }}
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-light">
+                    <!-- Main action button -->
+                    {% if user.role == 'student' %}
+                        <a href="{{ url_for('admin_manage_student', user_id=user.user_id) }}" 
+                           class="btn btn-primary w-100 mb-2">
+                            Manage Student
+                        </a>
+                    {% elif user.role in ['tutor', 'staff_tutor'] %}
+                        <a href="{{ url_for('admin_manage_tutor', user_id=user.user_id) }}" 
+                           class="btn btn-primary w-100 mb-2">
+                            Manage Schedule
+                        </a>
+                    {% elif user.role == 'admin' %}
+                        <a href="{{ url_for('admin_edit_user', user_id=user.user_id) }}" 
+                           class="btn btn-warning w-100 mb-2">
+                            Edit Admin
+                        </a>
+                    {% endif %}
+                    
+                    <!-- Secondary actions -->
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin_edit_user', user_id=user.user_id) }}" 
+                           class="btn btn-sm btn-outline-secondary">
+                            Edit Details
+                        </a>
+                        
+                        {% if user.user_id != current_user.user_id %}
+                            <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.user_id) }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete {{ user.name }}? This action cannot be undone.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                    Delete User
+                                </button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-secondary w-100" disabled>
+                                Cannot Delete Self
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <p class="mb-0">No users found matching your criteria.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="{{ url_for('admin_create_user') }}" class="btn btn-success">Create New User</a>
+</div>
+
+{% endblock %}

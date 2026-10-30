@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}View Meeting Notes{% endblock %}
+{% block content %}
+<h2>Meeting Notes</h2>
+
+<div class="card mb-4 border-info">
+    <div class="card-body">
+        <h5 class="card-title">Meeting Details</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Student:</strong> {{ meeting.student.name }}</p>
+                <p><strong>Tutor:</strong> {{ meeting.tutor.name }}</p>
+                <p><strong>Date:</strong> {{ meeting.start_time.strftime('%b %d, %Y') }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Time:</strong> {{ meeting.start_time.strftime('%H:%M') }} - {{ meeting.end_time.strftime('%H:%M') }}</p>
+                <p><strong>Duration:</strong> {{ meeting.duration }} minutes</p>
+                <p><strong>Status:</strong> <span class="badge bg-success">{{ meeting.status }}</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Public Notes (visible to everyone) -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Meeting Notes</h5>
+        <small>Shared between tutor and student</small>
+    </div>
+    <div class="card-body">
+        {% if meeting.public_notes %}
+            <div class="notes-content">
+                <pre class="bg-light p-3 border rounded" style="white-space: pre-wrap; font-family: inherit;">{{ meeting.public_notes }}</pre>
+            </div>
+        {% else %}
+            <div class="alert alert-info mb-0">
+                <p class="mb-0">No public notes have been added for this meeting yet.</p>
+                {% if is_tutor %}
+                <small>Click "Edit Notes" below to add notes that will be visible to the student.</small>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Private Notes (only visible to tutor) -->
+{% if is_tutor %}
+<div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">Private Tutor Notes</h5>
+        <small>Only visible to you - Not visible to student</small>
+    </div>
+    <div class="card-body">
+        {% if meeting.private_notes %}
+            <div class="notes-content">
+                <pre class="bg-light p-3 border rounded" style="white-space: pre-wrap; font-family: inherit;">{{ meeting.private_notes }}</pre>
+            </div>
+        {% else %}
+            <div class="alert alert-warning mb-0">
+                <p class="mb-0">No private notes have been added for this meeting yet.</p>
+                <small>Click "Edit Notes" below to add private notes for your reference.</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- System Notes (if any) -->
+{% if meeting.notes %}
+<div class="card mb-4">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">System Notes</h5>
+    </div>
+    <div class="card-body">
+        <p class="mb-0">{{ meeting.notes }}</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Action Buttons -->
+<div class="d-grid gap-2 d-md-flex justify-content-md-start">
+    {% if is_tutor %}
+        <a href="{{ url_for('manage_meeting_notes', meeting_id=meeting.meeting_id) }}" class="btn btn-primary">
+            Edit Notes
+        </a>
+    {% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+{% endblock %}

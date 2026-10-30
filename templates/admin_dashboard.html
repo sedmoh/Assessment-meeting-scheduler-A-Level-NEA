@@ -1,0 +1,232 @@
+
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<!-- Admin Control Panel -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Administrator Controls</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Full system access - manage all users, meetings, and generate reports</p>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_manage_users') }}" class="btn btn-primary w-100">
+                            <i class="bi bi-people"></i> Manage Users
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_view_all_meetings') }}" class="btn btn-success w-100">
+                            <i class="bi bi-calendar-check"></i> Manage Meetings
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_create_user') }}" class="btn btn-info w-100">
+                            <i class="bi bi-person-plus"></i> Create New User
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="/admin/reports" class="btn btn-warning w-100">
+                            <i class="bi bi-file-text"></i> System Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h2>{{ total_users }}</h2>
+                <small>Across all roles</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Meetings</h5>
+                <h2>{{ total_meetings }}</h2>
+                <small>All time</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Active Slots</h5>
+                <h2>{{ total_availability }}</h2>
+                <small>Available now</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">With Adjustments</h5>
+                <h2>{{ students_with_adjustments }}</h2>
+                <small>Students requiring support</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Breakdown by Role -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">User Distribution by Role</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Role</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Students</strong></td>
+                                <td>{{ user_counts.students }}</td>
+                                <td>{{ "%.1f"|format((user_counts.students / total_users * 100) if total_users > 0 else 0) }}%</td>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_users', role='student') }}" class="btn btn-sm btn-primary">
+                                        View All
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tutors</strong></td>
+                                <td>{{ user_counts.tutors }}</td>
+                                <td>{{ "%.1f"|format((user_counts.tutors / total_users * 100) if total_users > 0 else 0) }}%</td>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_users', role='tutor') }}" class="btn btn-sm btn-primary">
+                                        View All
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Staff Tutors</strong></td>
+                                <td>{{ user_counts.staff_tutors }}</td>
+                                <td>{{ "%.1f"|format((user_counts.staff_tutors / total_users * 100) if total_users > 0 else 0) }}%</td>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_users', role='staff_tutor') }}" class="btn btn-sm btn-primary">
+                                        View All
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Admins</strong></td>
+                                <td>{{ user_counts.admins }}</td>
+                                <td>{{ "%.1f"|format((user_counts.admins / total_users * 100) if total_users > 0 else 0) }}%</td>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_users', role='admin') }}" class="btn btn-sm btn-primary">
+                                        View All
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent User Registrations</h5>
+                {% if recent_users %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('admin_edit_user', user_id=user.user_id) }}">
+                                        {{ user.name }}
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-secondary">{{ user.role }}</span></td>
+                                <td>{{ user.date_created.strftime('%b %d, %Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent registrations</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent Meetings</h5>
+                {% if recent_meetings %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Tutor</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meeting in recent_meetings %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_student', user_id=meeting.student_id) }}">
+                                        {{ meeting.student.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin_manage_tutor', user_id=meeting.tutor_id) }}">
+                                        {{ meeting.tutor.name }}
+                                    </a>
+                                </td>
+                                <td>{{ meeting.start_time.strftime('%b %d, %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2">
+                    <a href="{{ url_for('admin_view_all_meetings') }}" class="btn btn-sm btn-primary">
+                        View All Meetings
+                    </a>
+                </div>
+                {% else %}
+                <p class="text-muted">No recent meetings</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

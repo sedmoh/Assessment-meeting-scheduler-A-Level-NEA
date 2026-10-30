@@ -1,0 +1,10 @@
+__pycache__/
+.ruff_cache/
+.venv/
+.vscode/
+instance/
+*.db
+.env
+SECRET_KEY.txt
+*.docx
+~$*
