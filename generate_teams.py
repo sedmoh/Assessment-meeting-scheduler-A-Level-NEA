@@ -1,5 +1,6 @@
-import requests
 import json
+
+import requests
 
 
 class PowerAutomateTeamsService:
@@ -63,11 +64,12 @@ class PowerAutomateTeamsService:
             print("Request timed out after 30 seconds")
             return None
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP Error: {e}")
-            print(f"Status Code: {e.response.status_code}")
+            # don't print e itself: its message contains the full flow URL, including the secret sig key
+            print(f"Power Automate HTTP error: {e.response.status_code} {e.response.reason}")
             return None
         except requests.exceptions.RequestException as e:
-            print(f"Request failed: {str(e)}")
+            # print only the error type, for the same reason
+            print(f"Power Automate request failed: {type(e).__name__}")
             return None
         except json.JSONDecodeError:
             print("Invalid JSON response from Power Automate")
@@ -94,7 +96,8 @@ class PowerAutomateTeamsService:
                 print(f"Flow responded with status: {response.status_code}")
                 return False
         except Exception as e:
-            print(f"Cannot reach Power Automate flow: {str(e)}")
+            # print only the error type: the message would contain the flow URL
+            print(f"Cannot reach Power Automate flow: {type(e).__name__}")
             return False
 
 

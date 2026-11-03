@@ -4,6 +4,16 @@ from datetime import datetime, timedelta
 
 db = SQLAlchemy()
 
+
+class MeetingStatus:
+    # the only place meeting status values are spelled out
+    # use these constants instead of typing the strings, so a typo is an error, not a silent bug
+    CONFIRMED = "Confirmed"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
+    ALL = (CONFIRMED, COMPLETED, CANCELLED)
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +47,7 @@ class Meeting(db.Model):
     duration = db.Column(db.Integer, nullable=False)  # in minutes
     meeting_link = db.Column(db.String(200))
     adjustment_flag = db.Column(db.Boolean, default=False)
-    status = db.Column(db.String(20), default='confirmed')
+    status = db.Column(db.String(20), default=MeetingStatus.CONFIRMED)
     notes = db.Column(db.String(200))  # system notes (adjustments, urgent, etc.)
     public_notes = db.Column(db.Text)  # visible to both tutor and student
     private_notes = db.Column(db.Text)  # only visible to tutor

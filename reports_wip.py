@@ -8,7 +8,7 @@ class ReportGenerator:
     @staticmethod
     def get_tutor_statistics(tutor_id=None, start_date=None, end_date=None):
         query = """
-            SELECT 
+            SELECT
                 u.user_id,
                 u.name,
                 COUNT(m.meeting_id) AS total_meetings,
@@ -19,7 +19,7 @@ class ReportGenerator:
                 SUM(CASE WHEN m.status = 'Confirmed' THEN 1 ELSE 0 END) AS confirmed_count,
                 SUM(CASE WHEN m.status = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_count
             FROM users u
-            LEFT JOIN meeting m 
+            LEFT JOIN meeting m
                 ON u.user_id = m.tutor_id
             WHERE u.role IN ('tutor', 'staff_tutor')
         """
@@ -46,7 +46,7 @@ class ReportGenerator:
     @staticmethod
     def get_busy_tutors(limit=10):
         query = """
-            SELECT 
+            SELECT
                 u.user_id,
                 u.name,
                 u.email,
@@ -67,7 +67,7 @@ class ReportGenerator:
     @staticmethod
     def get_weekly_meeting_distribution():
         query = """
-            SELECT 
+            SELECT
                 CAST(strftime('%w', start_time) AS INTEGER) AS day_of_week,
                 COUNT(meeting_id) AS meeting_count,
                 AVG(duration) AS avg_duration
@@ -105,7 +105,7 @@ class ReportGenerator:
     @staticmethod
     def get_popular_time_slots():
         query = """
-            SELECT 
+            SELECT
                 CAST(strftime('%H', start_time) AS INTEGER) AS hour,
                 COUNT(meeting_id) AS bookings,
                 COUNT(DISTINCT student_id) AS unique_students
@@ -129,7 +129,7 @@ class ReportGenerator:
     @staticmethod
     def get_student_engagement_rate():
         query = """
-            SELECT 
+            SELECT
                 u.user_id,
                 u.name,
                 u.email,
@@ -165,7 +165,7 @@ class ReportGenerator:
     @staticmethod
     def get_availability_utilisation():
         query = """
-            SELECT 
+            SELECT
                 COUNT(availability_id) AS total_slots,
                 SUM(CASE WHEN booked = 1 THEN 1 ELSE 0 END) AS booked_slots,
                 SUM(CASE WHEN booked = 0 THEN 1 ELSE 0 END) AS available_slots
@@ -195,7 +195,7 @@ class ReportGenerator:
                 SUM(CASE WHEN m.adjustment_flag = 1 THEN m.duration ELSE 0 END) AS adjusted_minutes
             FROM users u
             INNER JOIN student s ON u.user_id = s.user_id
-            LEFT JOIN meeting m 
+            LEFT JOIN meeting m
                 ON u.user_id = m.student_id
                AND m.status = 'Confirmed'
             WHERE s.has_adjustment = 1
@@ -208,7 +208,7 @@ class ReportGenerator:
     @staticmethod
     def get_meetings_by_month():
         query = """
-            SELECT 
+            SELECT
                 CAST(strftime('%Y', start_time) AS INTEGER) AS year,
                 CAST(strftime('%m', start_time) AS INTEGER) AS month,
                 COUNT(meeting_id) AS meeting_count
@@ -249,7 +249,7 @@ class ReportGenerator:
     @staticmethod
     def get_tutor_workload_comparison():
         query = """
-            SELECT 
+            SELECT
                 u.user_id,
                 u.name,
                 COUNT(m.meeting_id) AS total_meetings,
